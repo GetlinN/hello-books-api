@@ -17,21 +17,44 @@ books_bp = Blueprint("books", __name__, url_prefix="/books")
 # matching HTTP request is received.
 
 
-@books_bp.route("/<book_id>", methods=["GET"])
+@books_bp.route("/<book_id>", methods=["GET", "PUT", "DELETE"])
 def handle_book(book_id):
+
     book = Book.query.get(book_id)
 
-    if book:
-        return ({
-            "id": book.id,
-            "title": book.title,
-            "description": book.description
-        }, 200)
+    # pull information feature
+    if request.method == "GET":
+        if book:
+            return ({
+                "id": book.id,
+                "title": book.title,
+                "description": book.description
+            }, 200)
 
-    return ({
-        "message": f"Book with id {book_id} is not found.",
-        "success": False
-    }, 404)
+        return ({
+            "message": f"Book with id {book_id} is not found.",
+            "success": False
+        }, 404)
+
+    # update feature
+    elif request.method == "PUT":
+        form_data = request.get_json()
+        book.title = form_data["title"]
+        book.description = form_data["description"]
+        db.session.commit()
+        return make_response(f"Book #{book.id} successfully updated")
+
+    elif request.method == "DELETE":
+        if book:
+            db.session.delete(book)
+            db.session.commit()
+            return make_response(f"Book #{book.id} successfully deleted")
+
+        # error handling
+        return {
+            "error": True,
+            "error_message": "There is no such id in DB."
+        }, 200
 
 
 @books_bp.route("", methods=["GET", "POST"])
@@ -61,19 +84,20 @@ def handle_books():
         new_book = Book(title=request_body["title"],
                         description=request_body["description"])
 
-    # db.session is the database's way of collecting changes that need to be
-    # made. Here, we are saying we want the database to add new_book.
-    db.session.add(new_book)
+        # db.session is the database's way of collecting changes that need to be
+        # made. Here, we are saying we want the database to add new_book.
+        db.session.add(new_book)
 
-    # Here, we are saying we want the database to save and commit the
-    # collected changes.
-    db.session.commit()
+        # Here, we are saying we want the database to save and commit the
+        # collected changes.
+        db.session.commit()
 
-    # For each endpoint, we must return the HTTP response
-    # make_response: This function instantiates a Response object. A Response
-    # object is generally what we want to return from Flask endpoint
-    # functions.
-    return make_response(f"Book {new_book.title} successfully created", 201)
+        # For each endpoint, we must return the HTTP response
+        # make_response: This function instantiates a Response object. A Response
+        # object is generally what we want to return from Flask endpoint
+        # functions.
+        return make_response(
+            f"Book {new_book.title} successfully created", 201)
 
     # hello_world_bp = Blueprint("hello_world", __name__)
 
