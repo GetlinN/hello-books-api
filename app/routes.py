@@ -22,6 +22,13 @@ def handle_book(book_id):
 
     book = Book.query.get(book_id)
 
+    # trying to get one non-existing book and get a 404 response
+    if book is None:
+        return ({
+            "error": True,
+            "message": f"Book with id {book_id} is not found."
+        }, 404)
+
     # pull information feature
     if request.method == "GET":
         if book:
@@ -30,12 +37,6 @@ def handle_book(book_id):
                 "title": book.title,
                 "description": book.description
             }, 200)
-
-        # trying to get one non-existing book and get a 404 response
-        return ({
-            "error": True,
-            "message": f"Book with id {book_id} is not found."
-        }, 404)
 
     # update feature
     elif request.method == "PUT":
@@ -46,23 +47,11 @@ def handle_book(book_id):
             db.session.commit()
             return make_response(f"Book #{book.id} successfully updated")
 
-        # trying to update one non-existing book and get a 404 response
-        return {
-            "error": True,
-            "error_message": f"Book with id {book_id} is not found."
-        }, 404
-
     elif request.method == "DELETE":
         if book:
             db.session.delete(book)
             db.session.commit()
             return make_response(f"Book #{book.id} successfully deleted")
-
-        # trying to delete one non-existing book and get a 404 response
-        return {
-            "error": True,
-            "error_message": f"Book with id {book_id} is not found."
-        }, 404
 
 
 @books_bp.route("", methods=["GET", "POST"])
