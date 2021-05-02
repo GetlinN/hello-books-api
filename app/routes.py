@@ -21,6 +21,7 @@ books_bp = Blueprint("books", __name__, url_prefix="/books")
 def handle_book(book_id):
 
     book = Book.query.get(book_id)
+    # book = Book.query.get_or_404(book_id)
 
     # trying to get one non-existing book and get a 404 response
     if book is None:
@@ -58,9 +59,14 @@ def handle_book(book_id):
 def handle_books():
     if request.method == "GET":
 
-        # This SQLAlchemy syntax tells Book to query for all() books. This
-        # method returns a list of instances of Book.
-        books = Book.query.all()
+        # Finding Books by Title
+        title_query = request.args.get("title")
+        if title_query:
+            books = Book.query.filter_by(title=title_query)
+        else:
+            # This SQLAlchemy syntax tells Book to query for all() books. This
+            # method returns a list of instances of Book.
+            books = Book.query.all()
 
         books_response = []
         for book in books:
