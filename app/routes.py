@@ -104,8 +104,13 @@ def handle_books():
         # make_response: This function instantiates a Response object. A Response
         # object is generally what we want to return from Flask endpoint
         # functions.
-        return make_response(
-            f"Book {new_book.title} successfully created", 201)
+
+        # return make_response(
+        #     f"Book {new_book.title} successfully created", 201)
+
+        return ({
+            "message": f"Book '{new_book.title}' successfully created"
+        }, 201)
 
     # hello_world_bp = Blueprint("hello_world", __name__)
 
