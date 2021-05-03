@@ -74,10 +74,13 @@ def test_post_book(client):
 
     # Act
     response = client.post("/books", json=request_body)
-    response_body = response.get_json()
+    # response_body = response.get_json()
+    response_body = response.get_data(as_text=True)
+    print(response_body)
 
     # Assert
     assert response.status_code == 201
-    assert response_body == {
-        "message": f"Book '{request_body['title']}' successfully created"
-    }
+    # assert response_body == {
+    #     "message": f"Book '{request_body['title']}' successfully created"
+    # }
+    assert response_body == f"Book {request_body['title']} successfully created"
