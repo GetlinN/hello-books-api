@@ -57,6 +57,11 @@ def handle_book(book_id):
 
 @books_bp.route("", methods=["GET", "POST"])
 def handle_books():
+
+    # # One way we can break this route is to return a response with a status
+    # # code 418 before doing anything else in the function.
+    # return Response("I'm a teapot!", status=418)
+
     if request.method == "GET":
 
         # Finding Books by Title
